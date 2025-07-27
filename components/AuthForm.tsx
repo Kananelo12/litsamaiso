@@ -40,22 +40,50 @@ const AuthForm = ({ type }: { type: FormType }) => {
   });
 
   // Define a submit handler.
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       if (type === "sign-up") {
         // Destructure relevant fields out of values
         const { name, email, studentId, password } = values;
-        console.log(values);
 
-        // Authenticate user
+        // Creating user in database
+        const response = await fetch("/api/auth/register", {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name,
+            email,
+            studentId,
+            password,
+          })
+        })
+
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || "Something went wrong");
+        }
 
         // Redirect upon successful authentication
         toast.success("Account created successfully! Please sign in.");
         router.push("/sign-in");
       } else {
         const { studentId, password } = values;
-        console.log("Student ID: ", studentId);
-        console.log("Password: ", password);
+
+        // Authenticate user
+        const response = await fetch("/api/auth/login", {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            studentId,
+            password,
+          })
+        })
+
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || "Something went wrong");
+        }
+        
         toast.success("Signed in successfully!");
         router.push("/");
       }
