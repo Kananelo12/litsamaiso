@@ -30,7 +30,15 @@ const FormField = ({
       <FormItem>
         <FormLabel>{label}</FormLabel>
         <FormControl>
-          <Input placeholder={placeholder} {...field} type={type} />
+          {type === "file" ? (
+            <Input
+              type="file"
+              accept="image/*"
+              onChange={(e) => field.onChange(e.target.files)}
+            />
+          ) : (
+            <Input placeholder={placeholder} {...field} type={type} />
+          )}
         </FormControl>
         <FormMessage />
       </FormItem>
