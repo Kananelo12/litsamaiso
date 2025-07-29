@@ -3,6 +3,10 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@them {
+  --font-ibm-plex-sans: "IBM Plex Sans", sans-serif;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -117,6 +121,62 @@
     @apply border-border outline-ring/50;
   }
   body {
+    font-family: var(--font-ibm-plex-sans);
     @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  /* full‑screen gray background and centering */
+  .auth-bg {
+    @apply min-h-screen flex items-center justify-center bg-gray-100;
+  }
+
+  /* the white card with huge border‑radius and overflow hidden */
+  .auth-card {
+    @apply flex w-full h-screen bg-white p-2;
+  }
+
+  /* left half: background image, dark overlay, flex column */
+  .auth-left {
+    @apply relative w-1/2 bg-[url("/auth-bg.png")] bg-cover bg-center rounded-3xl;
+  }
+  .auth-left-content {
+    @apply relative z-10 h-full flex flex-col justify-between p-8 text-white;
+  }
+  .auth-left-content .small-title {
+    @apply uppercase text-sm tracking-wider text-gray-200;
+  }
+  .auth-left-content h2 {
+    @apply text-6xl font-serif leading-tight;
+  }
+  .auth-left-content p {
+    @apply text-gray-400;
+  }
+
+  /* right half: white background, padding, flex column centering */
+  .auth-right {
+    @apply relative w-1/2 bg-white py-4 px-4 lg:py-10 lg:px-20 flex flex-col justify-center overflow-hidden;
+  }
+  .auth-right .logo {
+    @apply flex items-center gap-2;
+  }
+  .logo h3 {
+    @apply text-lg text-slate-950;
+  }
+  .auth-right form {
+    @apply space-y-6;
+  }
+  .auth-right input {
+    @apply w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400;
+  }
+  .auth-right button {
+    @apply w-full py-3 rounded-lg bg-black text-white font-semibold;
+  }
+  .auth-right .alt-signin {
+    @apply flex items-center justify-center border border-gray-200 rounded-lg py-3 space-x-2 mt-2;
+  }
+  .auth-right a {
+    @apply text-indigo-600 hover:underline;
   }
 }
