@@ -4,7 +4,7 @@ import React, { ReactNode } from 'react'
 
 const layout = async ({ children }: { children: ReactNode}) => {
   const user = await getCurrentUser();
-  if (user) redirect("/");
+  if (user) redirect("/updates");
   return (
     <div>{children}</div>
   )
