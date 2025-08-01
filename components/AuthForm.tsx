@@ -118,7 +118,13 @@ const AuthForm = ({ type }: { type: FormType }) => {
         }
 
         toast.success("Signed in successfully!");
-        router.push("/updates");
+        // Redirect based on user role
+        const role = data.user?.role;
+        if (role === "src") {
+          router.push("/src-dashboard");
+        } else {
+          router.push("/updates");
+        }
       }
     } catch (error) {
       console.error("Error submitting form:", error);

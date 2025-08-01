@@ -11,8 +11,8 @@ export async function POST(request: Request) {
   // Extract studentId and password from the request body
   const { studentId, password } = await request.json();
 
-  // Look up the user by studentId
-  const user = await User.findOne({ studentId });
+  // Look up the user by studentId and populate the role
+  const user = await User.findOne({ studentId }).populate('role');
   if (!user) {
     // If no user is found, return 401 Unauthorized
     return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
@@ -27,9 +27,14 @@ export async function POST(request: Request) {
   // Create a JWT payload with the user's ID
   const token = signToken({ id: user._id });
 
-  // Build a success response including user details
+  // Build a success response including user details and role name
   const response = NextResponse.json({
-    user: { id: user._id, name: user.name, email: user.email },
+    user: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role?.name || null,
+    },
   });
 
   // Set the JWT as an HttpOnly cookie so it's sent on subsequent requests
