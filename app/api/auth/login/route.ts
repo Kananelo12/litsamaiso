@@ -3,6 +3,7 @@ import { connectDB } from "@/utils/mongodb";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { signToken } from "@/utils/jwt";
+import Verification from "@/models/Verification";
 
 export async function POST(request: Request) {
   // Wait for connection to mongoDB
@@ -12,7 +13,7 @@ export async function POST(request: Request) {
   const { studentId, password } = await request.json();
 
   // Look up the user by studentId and populate the role
-  const user = await User.findOne({ studentId }).populate('role');
+  const user = await User.findOne({ studentId }).populate("role");
   if (!user) {
     // If no user is found, return 401 Unauthorized
     return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
@@ -22,6 +23,22 @@ export async function POST(request: Request) {
   const isValidPasswd = await bcrypt.compare(password, user.password);
   if (!isValidPasswd) {
     return NextResponse.json({ error: "Invalid password" }, { status: 401 });
+  }
+
+  // Check for verification entry for this student
+  let record = await Verification.findOne({ studentId: user.studentId });
+  // If missing, create a minimal placeholder
+  if (!record) {
+    record = await Verification.create({
+      fullnames: user.name,
+      contractNumber: "",
+      courseOfStudy: "",
+      bankName: "",
+      accountNumber: "",
+      confirmationDate: "",
+      studentId: user.studentId,
+      status: "pending",
+    });
   }
 
   // Create a JWT payload with the user's ID
