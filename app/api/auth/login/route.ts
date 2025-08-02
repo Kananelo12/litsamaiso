@@ -3,6 +3,7 @@ import { connectDB } from "@/utils/mongodb";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { signToken } from "@/utils/jwt";
+// import Verification from "@/models/Verification";
 
 export async function POST(request: Request) {
   // Wait for connection to mongoDB
@@ -12,7 +13,7 @@ export async function POST(request: Request) {
   const { studentId, password } = await request.json();
 
   // Look up the user by studentId and populate the role
-  const user = await User.findOne({ studentId }).populate('role');
+  const user = await User.findOne({ studentId }).populate("role");
   if (!user) {
     // If no user is found, return 401 Unauthorized
     return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
