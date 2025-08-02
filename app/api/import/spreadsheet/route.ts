@@ -4,7 +4,8 @@ import { NextResponse } from "next/server";
 // import path from "path";
 import * as XLSX from "xlsx";
 import { connectDB } from "@/utils/mongodb";
-import Verification from "@/models/Verification";
+import AccountList from "@/models/AccountList";
+
 
 export const config = { api: { bodyParser: false } };
 
@@ -39,7 +40,7 @@ export async function POST(req: Request) {
 
   // upsert each row to avoid duplicates
   for (const doc of docs) {
-    await Verification.updateOne(
+    await AccountList.updateOne(
       { contractNumber: doc.contractNumber },
       { $set: doc },
       { upsert: true }

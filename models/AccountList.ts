@@ -1,6 +1,6 @@
 import { Schema, model, models, Document } from "mongoose";
 
-export interface IVerification extends Document {
+export interface IAccountList extends Document {
   fullnames?: string;
   contractNumber?: string;
   courseOfStudy?: string;
@@ -9,10 +9,10 @@ export interface IVerification extends Document {
   confirmationDate?: string; // filled on confirmation
   studentId?: string; // filled on confirmation
   signature?: string; // optional digital signature
-  status: "pending" | "correct" | "incorrect";
+  status: "pending" | "confirmed" | "erroneous";
 }
 
-const VerificationSchema = new Schema<IVerification>(
+const AccountListSchema = new Schema<IAccountList>(
   {
     fullnames: { type: String },
     contractNumber: { type: String, unique: true },
@@ -24,15 +24,15 @@ const VerificationSchema = new Schema<IVerification>(
     signature: { type: String },
     status: {
       type: String,
-      enum: ["pending", "correct", "incorrect"],
+      enum: ["pending", "confirmed", "erroneous"],
       default: "pending",
     },
   },
   { timestamps: true }
 );
 
-const Verification =
-  models.Verification ||
-  model<IVerification>("Verification", VerificationSchema);
+const AccountList =
+  models.AccountList ||
+  model<IAccountList>("AccountList", AccountListSchema);
 
-export default Verification;
+export default AccountList;

@@ -20,6 +20,7 @@ const emptyState = false;
 // Define the form schema
 const confirmationFormSchema = () => {
   return z.object({
+    contractNumber: z.string().regex(/^\d{12}$/, "Contract number must be exactly 12 digits"),
     studentId: z
       .string()
       .regex(/^\d{7}$/, "Student ID must be exactly 7 digits"),
@@ -38,6 +39,7 @@ const Page = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      contractNumber: "",
       studentId: "",
       bankName: "",
       accountNumber: "",
@@ -47,12 +49,13 @@ const Page = () => {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
 
-      const { studentId, bankName, accountNumber } = values;
+      const { contractNumber, studentId, bankName, accountNumber } = values;
 
       const response = await fetch("/api/confirmation", {
         method: 'POST',
         headers: { 'Content-Type': "application/json" },
         body: JSON.stringify({
+          contractNumber,
           studentId,
           bankName,
           accountNumber,
@@ -86,8 +89,14 @@ const Page = () => {
                 <Form {...form}>
                   <form
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="space-y-8 mt-14"
+                    className="space-y-8 mt-10"
                   >
+                    <FormField
+                      control={form.control}
+                      name="contractNumber"
+                      label="Contract Number"
+                      placeholder="e.g. 202211001706"
+                    />
                     <FormField
                       control={form.control}
                       name="studentId"

@@ -1,4 +1,5 @@
 import Header from "@/components/Header";
+import ImportSheet from "@/components/ImportSheet";
 import { getCurrentUser } from "@/utils/actions/auth.action";
 import { redirect } from "next/navigation";
 import React, { ReactNode } from "react";
@@ -11,6 +12,8 @@ const layout = async ({ children }: { children: ReactNode }) => {
     <div>
       <Header username={user.name} />
       {children}
+
+      <ImportSheet />
     </div>
   );
 };
