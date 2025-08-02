@@ -61,22 +61,22 @@ const AuthForm = ({ type }: { type: FormType }) => {
         const { name, email, studentId, password, studentCard } = values;
 
         const studentCardFile = (studentCard as FileList)[0]; // we know it's a FileList
-        console.log("Student Card FIle: ", studentCardFile)
+        console.log("Student Card FIle: ", studentCardFile);
 
         // Upload step
         const uploadForm = new FormData();
         uploadForm.append("file", studentCardFile);
-        console.log("Upload FORM: ", uploadForm)
+        console.log("Upload FORM: ", uploadForm);
 
         const uploadRes = await fetch("/api/upload", {
           method: "POST",
           body: uploadForm, // no need for headers
         });
 
-        const { url: studentCardUrl } = await uploadRes.json();
         if (!uploadRes.ok) {
           throw new Error("Failed to upload student card");
         }
+        const { url: studentCardUrl } = await uploadRes.json();
 
         // Creating user in database
         const response = await fetch("/api/auth/register", {
@@ -92,7 +92,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
         });
 
         const data = await response.json();
-        console.log("Register response: ", data)
+        console.log("Register response: ", data);
         if (!response.ok) {
           throw new Error(data.error || "Something went wrong");
         }

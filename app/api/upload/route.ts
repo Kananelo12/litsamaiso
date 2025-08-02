@@ -1,44 +1,35 @@
-// app/api/upload/route.ts
-import { NextResponse } from "next/server";
-import fs from "fs/promises";
-import path from "path";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
-export const config = {
-  api: { bodyParser: false },
-};
+import { put } from "@vercel/blob";
+import { NextResponse } from "next/server";
+
+export const config = { api: { bodyParser: false } };
 
 export async function POST(req: Request) {
   try {
     const formData = await req.formData();
-    // 1. Narrow to File, not Blob
-    const file = formData.get("file");
+    const file     = formData.get("file");
     if (!(file instanceof File)) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
-    // 2. Read file bytes
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    // Upload the file directly into your default Blob store
+    // “uploads/” here becomes the “key prefix” in the Blob store
+    const blob = await put(
+      `uploads/${Date.now()}-${file.name}`,
+      file,
+      { access: "public" }
+    );
 
-    // 3. Ensure upload dir
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-    await fs.mkdir(uploadDir, { recursive: true });
+    console.log("BLOB: ", blob)
+    console.log("BLOB URL: ", blob.url)
 
-    // 4. Use `file.name` safely now
-    const filename = `${Date.now()}-${file.name}`;
-    const dest = path.join(uploadDir, filename);
-    await fs.writeFile(dest, buffer);
-
-    // 5. Return the URL
-    return NextResponse.json({ url: `/uploads/${filename}` });
-  } catch (error) {
-    console.error("Upload error:", error);
-    const errorMessage =
-      typeof error === "object" && error !== null && "message" in error
-        ? (error as { message?: string }).message
-        : "Internal Server Error";
+    // blob.url is the public URL to your file
+    return NextResponse.json({ url: blob.url });
+  } catch (err: any) {
+    console.error("Upload error:", err);
     return NextResponse.json(
-      { error: errorMessage || "Internal Server Error" },
+      { error: err.message || "Internal Server Error" },
       { status: 500 }
     );
   }
