@@ -92,6 +92,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
         });
 
         const data = await response.json();
+        console.log("Register response: ", data)
         if (!response.ok) {
           throw new Error(data.error || "Something went wrong");
         }

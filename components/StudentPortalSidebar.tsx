@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Menu, Bell, LogOut, ChevronDown, Shield, X } from "lucide-react";
+import { Menu, Bell, ChevronDown, Shield, X } from "lucide-react";
 
 interface SidebarProps {
   selectedHeader: string | null;
@@ -202,27 +202,7 @@ const StudentPortalSidebar = ({
               </div>
             </div>
 
-            {/* User Profile */}
-            <div className="p-6 border-t border-gray-100/50 mt-auto">
-              <div className="flex items-center gap-3 p-3 hover:bg-gray-50/60 rounded-xl transition-all duration-300 mb-4 group">
-                <div className="relative">
-                  <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-sm">
-                    <span className="text-white font-semibold text-sm">BM</span>
-                  </div>
-                  <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 border-2 border-white rounded-full"></div>
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-gray-800 text-sm">
-                    Bokang Mahlaka
-                  </h3>
-                  <p className="text-gray-500 text-xs">Student Portal</p>
-                </div>
-              </div>
-              <button className="w-full flex items-center gap-2 text-gray-500 hover:text-red-500 hover:bg-red-50/80 p-2.5 rounded-lg transition-all duration-300 group">
-                <LogOut className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" />
-                <span className="font-medium text-sm">Sign Out</span>
-              </button>
-            </div>
+            
           </div>
         </div>
       </div>
