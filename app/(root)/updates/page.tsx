@@ -14,7 +14,7 @@ const Page = async () => {
   return (
     <div className='flex min-h-screen'>
       <StudentPortalSidebar />
-      <div className='flex w-full items-center justify-center text-2xl border border-red-500'>Updates</div>
+      <div className='flex w-full items-center justify-center text-2xl'>Updates</div>
     </div>
   )
 }

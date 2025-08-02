@@ -28,7 +28,7 @@ const ImportSheet = () => {
     formData.append("file", file);
 
     try {
-      const res = await fetch("/api/import/spreadsheet", {
+      const res = await fetch("/api/spreadsheet/import/accounts", {
         method: "POST",
         body: formData,
       });
