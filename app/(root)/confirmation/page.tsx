@@ -1,7 +1,6 @@
 "use client";
 
 import FormField from "@/components/FormField";
-import StudentPortalSidebar from "@/components/StudentPortalSidebar";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import Image from "next/image";
@@ -12,7 +11,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { motion, useInView } from "framer-motion";
-import Earth from "@/components/ui/globe"
+import Earth from "@/components/ui/globe";
 import { toast } from "sonner";
 
 const emptyState = false;
@@ -20,7 +19,9 @@ const emptyState = false;
 // Define the form schema
 const confirmationFormSchema = () => {
   return z.object({
-    contractNumber: z.string().regex(/^\d{12}$/, "Contract number must be exactly 12 digits"),
+    contractNumber: z
+      .string()
+      .regex(/^\d{12}$/, "Contract number must be exactly 12 digits"),
     studentId: z
       .string()
       .regex(/^\d{7}$/, "Student ID must be exactly 7 digits"),
@@ -48,30 +49,28 @@ const Page = () => {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-
       const { contractNumber, studentId, bankName, accountNumber } = values;
 
       const response = await fetch("/api/confirmation", {
-        method: 'POST',
-        headers: { 'Content-Type': "application/json" },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contractNumber,
           studentId,
           bankName,
           accountNumber,
-        })
+        }),
       });
 
       const data = await response.json();
       console.log("Confirmation Response: ", data);
 
       if (!response.ok) {
-        toast.error(data.error || "Something went wrong")
+        toast.error(data.error || "Something went wrong");
         throw new Error(data.error || "Something went wrong");
       }
 
       toast.success(data?.message);
-
     } catch (error) {
       console.log("Error: ", error);
     }
@@ -80,7 +79,6 @@ const Page = () => {
   return (
     <div className="global-bg">
       <div className="main flex min-h-screen">
-        <StudentPortalSidebar />
 
         <div className="w-full flex items-center justify-center">
           {!emptyState ? (
