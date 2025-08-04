@@ -52,8 +52,8 @@ export async function GET() {
       .sort({ date: -1 }); // sort announcements starting with the latest
 
     return NextResponse.json({ data: announcements }, { status: 200 });
-  } catch (error) {
-    console.error("Error fetching announcements:", error);
+  } catch (error: any) {
+    console.error("Error fetching announcements:", error.stack || error);
     return NextResponse.json(
       { error: "Failed to retrieve announcements" },
       { status: 500 }
