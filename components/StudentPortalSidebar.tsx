@@ -46,7 +46,7 @@ const StudentPortalSidebar = ({
   };
 
   return (
-    <div className="min-h-screen flex items-start pt-24">
+    <div className="hidden min-h-screen sm:flex items-start pt-24">
       <div
         className={`${
           isOpen ? "w-80" : "w-16"
@@ -62,7 +62,7 @@ const StudentPortalSidebar = ({
       >
         {/* Header */}
         <div className="p-6 border-b border-gray-100/50">
-          <div className="flex items-center justify-between">
+          <div className={`flex items-center ${isOpen ? "justify-between" : "justify-center"} `}>
             <button
               onClick={toggleSidebar}
               className={`p-2.5 hover:bg-gray-100/60 rounded-xl transition-all duration-300 group ${
@@ -185,7 +185,7 @@ const StudentPortalSidebar = ({
                   }}
                 >
                   <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="relative flex items-center gap-3">
+                  <a href="/confirmation" className="relative flex items-center gap-3">
                     <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
                       <Shield className="w-4 h-4 text-white" />
                     </div>
@@ -197,7 +197,7 @@ const StudentPortalSidebar = ({
                         Secure your account
                       </p>
                     </div>
-                  </div>
+                  </a>
                 </button>
               </div>
             </div>

@@ -19,11 +19,11 @@ export default function UpdatesPageClient({
         onHeaderSelect={setSelectedHeader}
       />
       <div className="flex w-full items-center justify-center">
-        <div className="flex-grow h-[80vh] overflow-y-auto bg-white rounded-2xl shadow-lg p-6 ml-8">
+        <div className="flex-grow max-w-7xl h-[80vh] overflow-y-auto bg-white rounded-2xl shadow-lg mt-20 mx-8 custom-scrollbar">
           <div className="relative">
-            <h2 className="text-2xl font-bold mb-4">
-              Announcements
-            </h2>
+            <div className="sticky top-0 bg-white z-10 py-2 px-5">
+              <h2 className="text-2xl font-bold mb-4">Announcements</h2>
+            </div>
             <AnnouncementsFeed
               header={selectedHeader}
               userId={userId}

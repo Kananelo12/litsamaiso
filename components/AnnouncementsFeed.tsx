@@ -281,7 +281,7 @@ export default function AnnouncementsFeed({ header, userId, userName }: { header
   if (!filtered.length) return <div>No announcements yet.</div>;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-5">
       {filtered.map(a => (
         <AnnouncementCard key={a._id} announcement={a} userId={userId} userName={userName} />
       ))}
