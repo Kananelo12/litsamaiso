@@ -140,7 +140,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
         <div className="auth-left">
           <div className="auth-left-content">
             <span className="small-title">Innovation Hub</span>
-            <div>
+            <div className="hidden md:block">
               <h2>
                 Get
                 <br />
@@ -159,7 +159,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
 
         {/* RIGHT SIDE */}
         <div className="auth-right">
-          <div className="logo mb-5">
+          <div className="logo mb-5 mt-5 md:mt-0">
             <Image src="/logo-1.png" alt="Logo" width={35} height={35} />
             <h3 className="font-semibold text-2xl">Litsamaiso</h3>
           </div>
@@ -216,7 +216,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
                   type="file"
                 />
               )}
-              <Button type="submit">
+              <Button type="submit" className="py-6 md:py-0">
                 {isSignIn ? "Sign in" : "Create Account"}
               </Button>
             </form>

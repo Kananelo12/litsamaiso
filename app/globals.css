@@ -134,12 +134,12 @@
 
   /* the white card with huge border‑radius and overflow hidden */
   .auth-card {
-    @apply flex w-full h-screen bg-white p-2;
+    @apply flex flex-col md:flex-row justify-start md:items-stretch md:justify-start w-full h-screen bg-white md:p-2;
   }
 
   /* left half: background image, dark overlay, flex column */
   .auth-left {
-    @apply relative w-1/2 bg-[url("/auth-bg.png")] bg-cover bg-center rounded-3xl;
+    @apply relative w-full md:w-1/2 h-80 md:h-full bg-[url("/auth-bg.png")] bg-cover bg-center rounded-b-2xl md:rounded-3xl;
   }
   .auth-left-content {
     @apply relative z-10 h-full flex flex-col justify-between p-8 text-white;
@@ -156,7 +156,7 @@
 
   /* right half: white background, padding, flex column centering */
   .auth-right {
-    @apply relative w-1/2 bg-white py-4 px-4 lg:py-10 lg:px-20 flex flex-col justify-center overflow-hidden;
+    @apply relative w-full md:w-1/2 bg-white py-4 px-4 lg:py-10 lg:px-20 mb-10 md:mb-2 flex flex-col justify-center;
   }
   .auth-right .logo {
     @apply flex items-center gap-2;
@@ -179,4 +179,28 @@
   .auth-right a {
     @apply text-indigo-600 hover:underline;
   }
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2); /* light gray */
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.4); /* darken on hover */
+}
+
+/* Firefox support */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(189, 106, 219, 0.3) transparent;
 }
