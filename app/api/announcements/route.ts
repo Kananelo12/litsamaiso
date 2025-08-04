@@ -1,5 +1,7 @@
 import { connectDB } from "@/utils/mongodb";
 import Announcement from "@/models/Announcement";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import User from "@/models/User";
 import { NextRequest, NextResponse } from "next/server";
 
 // Create a new announcement resource from either SRC/admin memeber(s)
