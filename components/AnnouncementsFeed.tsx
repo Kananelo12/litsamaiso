@@ -15,7 +15,7 @@ type Announcement = {
   comments?: any[];
 };
 
-function AnnouncementCard({ announcement, userId, userName }: { announcement: any, userId: string, userName: string }) {
+function AnnouncementCard({ announcement, userId, userName }: { announcement: any, userId?: string, userName?: string }) {
   const [likes, setLikes] = useState(announcement.likes || []);
   const [comments, setComments] = useState(announcement.comments || []);
   const [commentText, setCommentText] = useState("");
@@ -248,7 +248,7 @@ function AnnouncementCard({ announcement, userId, userName }: { announcement: an
   );
 }
 
-export default function AnnouncementsFeed({ header, userId, userName }: { header?: string | null, userId: string, userName: string }) {
+export default function AnnouncementsFeed({ header, userId, userName }: { header?: string | null, userId?: string, userName?: string }) {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");

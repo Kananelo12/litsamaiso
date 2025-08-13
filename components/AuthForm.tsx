@@ -123,6 +123,8 @@ const AuthForm = ({ type }: { type: FormType }) => {
         const role = data.user?.role;
         if (role === "src") {
           router.push("/src-dashboard");
+        } else if (role === "admin") {
+          router.push("/admin-dashboard")
         } else {
           router.push("/updates");
         }

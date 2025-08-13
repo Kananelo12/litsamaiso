@@ -8,8 +8,8 @@ export default function UpdatesPageClient({
   userId,
   userName,
 }: {
-  userId: string;
-  userName: string;
+  userId?: string;
+  userName?: string;
 }) {
   const [selectedHeader, setSelectedHeader] = useState<string | null>(null);
   return (

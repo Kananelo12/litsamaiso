@@ -1,20 +1,14 @@
 import Header from "@/components/Header";
 import { getCurrentUser } from "@/utils/actions/auth.action";
 import { redirect } from "next/navigation";
-import React, { ReactNode } from "react";
+import { ReactNode } from "react";
 
 const layout = async ({ children }: { children: ReactNode }) => {
   const user = await getCurrentUser();
   if (!user) redirect("/sign-in");
-
-  // if (user.role === "admin") {
-  //   redirect("/admin-dashboard");
-  // } 
-  // else if (user.role === "src") {
-  //   redirect("/src-dashboard");
-  // } else if (user.role === "student") {
-  //   redirect("/updates");
-  // }
+  if (user.role !== "admin") {
+    redirect("/updates");
+  }
 
   return (
     <div>

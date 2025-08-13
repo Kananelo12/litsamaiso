@@ -1,21 +1,22 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { 
-  Users, 
-  CreditCard, 
-  FileText, 
-  Download, 
-  Upload, 
+import {
+  Users,
+  CreditCard,
+  // FileText,
+  Download,
+  Upload,
   Search,
-  Filter,
-  MoreHorizontal,
+  // Filter,
+  // MoreHorizontal,
   CheckCircle,
   XCircle,
   Clock,
   Eye,
   Edit,
-  Trash2
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -56,7 +57,9 @@ export default function AdminDashboardClient({
   userId: string;
   userName: string;
 }) {
-  const [activeTab, setActiveTab] = useState<"users" | "accounts" | "announcements">("users");
+  const [activeTab, setActiveTab] = useState<
+    "users" | "accounts" | "announcements"
+  >("users");
   const [users, setUsers] = useState<User[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
@@ -73,7 +76,7 @@ export default function AdminDashboardClient({
     totalAccounts: 0,
     confirmedAccounts: 0,
     pendingAccounts: 0,
-    erroneousAccounts: 0
+    erroneousAccounts: 0,
   });
 
   useEffect(() => {
@@ -94,15 +97,15 @@ export default function AdminDashboardClient({
 
       const response = await fetch(`/api/admin/users?${params}`);
       const data = await response.json();
-      
+
       if (response.ok) {
         setUsers(data.data);
-        setStats(prev => ({ ...prev, totalUsers: data.pagination.total }));
+        setStats((prev) => ({ ...prev, totalUsers: data.pagination.total }));
       } else {
         toast.error(data.error || "Failed to fetch users");
       }
     } catch (error) {
-      toast.error("Failed to fetch users");
+      toast.error(`Failed to fetch users: ${error}`);
     } finally {
       setLoading(false);
     }
@@ -117,21 +120,21 @@ export default function AdminDashboardClient({
 
       const response = await fetch(`/api/admin/accounts?${params}`);
       const data = await response.json();
-      
+
       if (response.ok) {
         setAccounts(data.data);
-        setStats(prev => ({
+        setStats((prev) => ({
           ...prev,
           totalAccounts: data.pagination.total,
           confirmedAccounts: data.statusCounts.confirmed || 0,
           pendingAccounts: data.statusCounts.pending || 0,
-          erroneousAccounts: data.statusCounts.erroneous || 0
+          erroneousAccounts: data.statusCounts.erroneous || 0,
         }));
       } else {
         toast.error(data.error || "Failed to fetch accounts");
       }
     } catch (error) {
-      toast.error("Failed to fetch accounts");
+      toast.error(`Failed to fetch accounts: ${error}`);
     } finally {
       setLoading(false);
     }
@@ -141,12 +144,12 @@ export default function AdminDashboardClient({
     try {
       const response = await fetch("/api/admin/roles");
       const data = await response.json();
-      
+
       if (response.ok) {
         setRoles(data.data);
       }
     } catch (error) {
-      console.error("Failed to fetch roles");
+      console.error(`Failed to fetch roles: ${error}`);
     }
   };
 
@@ -159,7 +162,7 @@ export default function AdminDashboardClient({
       });
 
       const data = await response.json();
-      
+
       if (response.ok) {
         toast.success("User role updated successfully");
         fetchUsers();
@@ -167,7 +170,7 @@ export default function AdminDashboardClient({
         toast.error(data.error || "Failed to update user role");
       }
     } catch (error) {
-      toast.error("Failed to update user role");
+      toast.error(`Failed to update user role: ${error}`);
     }
   };
 
@@ -180,7 +183,7 @@ export default function AdminDashboardClient({
       });
 
       const data = await response.json();
-      
+
       if (response.ok) {
         toast.success("Account status updated successfully");
         fetchAccounts();
@@ -188,23 +191,30 @@ export default function AdminDashboardClient({
         toast.error(data.error || "Failed to update account status");
       }
     } catch (error) {
-      toast.error("Failed to update account status");
+      toast.error(`Failed to update account status: ${error}`);
     }
   };
 
-  const exportData = async (type: "users" | "accounts", format: "xlsx" | "json" = "xlsx") => {
+  const exportData = async (
+    type: "users" | "accounts",
+    format: "xlsx" | "json" = "xlsx"
+  ) => {
     try {
       const url = `/api/admin/export/${type}?format=${format}`;
       const response = await fetch(url);
-      
+
       if (response.ok) {
         if (format === "json") {
           const data = await response.json();
-          const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+          const blob = new Blob([JSON.stringify(data, null, 2)], {
+            type: "application/json",
+          });
           const url = window.URL.createObjectURL(blob);
           const a = document.createElement("a");
           a.href = url;
-          a.download = `${type}_export_${new Date().toISOString().split('T')[0]}.json`;
+          a.download = `${type}_export_${
+            new Date().toISOString().split("T")[0]
+          }.json`;
           a.click();
           window.URL.revokeObjectURL(url);
         } else {
@@ -212,7 +222,9 @@ export default function AdminDashboardClient({
           const url = window.URL.createObjectURL(blob);
           const a = document.createElement("a");
           a.href = url;
-          a.download = `${type}_export_${new Date().toISOString().split('T')[0]}.xlsx`;
+          a.download = `${type}_export_${
+            new Date().toISOString().split("T")[0]
+          }.xlsx`;
           a.click();
           window.URL.revokeObjectURL(url);
         }
@@ -222,6 +234,7 @@ export default function AdminDashboardClient({
       }
     } catch (error) {
       toast.error(`Failed to export ${type}`);
+      console.log("Error: ", error);
     }
   };
 
@@ -241,7 +254,7 @@ export default function AdminDashboardClient({
       });
 
       const data = await response.json();
-      
+
       if (response.ok) {
         toast.success(`Successfully imported ${data.imported} records`);
         setShowImportModal(false);
@@ -253,7 +266,7 @@ export default function AdminDashboardClient({
         toast.error(data.error || "Import failed");
       }
     } catch (error) {
-      toast.error("Import failed");
+      toast.error(`Import failed: ${error}`);
     }
   };
 
@@ -280,7 +293,7 @@ export default function AdminDashboardClient({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-24">
+    <div className="min-h-screen bg-gray-50 pt-24 mt-5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
@@ -295,7 +308,9 @@ export default function AdminDashboardClient({
               <Users className="w-8 h-8 text-blue-600" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Total Users</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalUsers}</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {stats.totalUsers}
+                </p>
               </div>
             </div>
           </div>
@@ -303,8 +318,12 @@ export default function AdminDashboardClient({
             <div className="flex items-center">
               <CreditCard className="w-8 h-8 text-purple-600" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Accounts</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalAccounts}</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Total Accounts
+                </p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {stats.totalAccounts}
+                </p>
               </div>
             </div>
           </div>
@@ -313,7 +332,9 @@ export default function AdminDashboardClient({
               <CheckCircle className="w-8 h-8 text-green-600" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Confirmed</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.confirmedAccounts}</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {stats.confirmedAccounts}
+                </p>
               </div>
             </div>
           </div>
@@ -322,7 +343,9 @@ export default function AdminDashboardClient({
               <Clock className="w-8 h-8 text-yellow-600" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Pending</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.pendingAccounts}</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {stats.pendingAccounts}
+                </p>
               </div>
             </div>
           </div>
@@ -331,7 +354,9 @@ export default function AdminDashboardClient({
               <XCircle className="w-8 h-8 text-red-600" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Erroneous</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.erroneousAccounts}</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {stats.erroneousAccounts}
+                </p>
               </div>
             </div>
           </div>
@@ -350,7 +375,7 @@ export default function AdminDashboardClient({
                 }`}
               >
                 <Users className="w-4 h-4 inline mr-2" />
-                Users Management
+                User Management
               </button>
               <button
                 onClick={() => setActiveTab("accounts")}
@@ -381,7 +406,7 @@ export default function AdminDashboardClient({
                   />
                 </div>
               </div>
-              
+
               {activeTab === "users" && (
                 <select
                   value={roleFilter}
@@ -412,19 +437,21 @@ export default function AdminDashboardClient({
 
               <div className="flex gap-2">
                 <Button
-                  onClick={() => exportData(activeTab === "users" ? "users" : "accounts")}
+                  onClick={() =>
+                    exportData(activeTab === "users" ? "users" : "accounts")
+                  }
                   variant="outline"
-                  size="sm"
+                  size="lg"
                 >
                   <Download className="w-4 h-4 mr-2" />
                   Export
                 </Button>
-                
+
                 {activeTab === "accounts" && (
                   <Button
                     onClick={() => setShowImportModal(true)}
                     variant="outline"
-                    size="sm"
+                    size="lg"
                   >
                     <Upload className="w-4 h-4 mr-2" />
                     Import
@@ -465,7 +492,10 @@ export default function AdminDashboardClient({
                       </tr>
                     ) : users.length === 0 ? (
                       <tr>
-                        <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
+                        <td
+                          colSpan={5}
+                          className="px-6 py-4 text-center text-gray-500"
+                        >
                           No users found
                         </td>
                       </tr>
@@ -489,7 +519,9 @@ export default function AdminDashboardClient({
                             <select
                               value={user.role?.name || ""}
                               onChange={(e) => {
-                                const selectedRole = roles.find(r => r.name === e.target.value);
+                                const selectedRole = roles.find(
+                                  (r) => r.name === e.target.value
+                                );
                                 if (selectedRole) {
                                   updateUserRole(user._id, selectedRole._id);
                                 }
@@ -557,7 +589,10 @@ export default function AdminDashboardClient({
                       </tr>
                     ) : accounts.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
+                        <td
+                          colSpan={6}
+                          className="px-6 py-4 text-center text-gray-500"
+                        >
                           No accounts found
                         </td>
                       </tr>
@@ -588,8 +623,15 @@ export default function AdminDashboardClient({
                               {getStatusIcon(account.status)}
                               <select
                                 value={account.status}
-                                onChange={(e) => updateAccountStatus(account._id, e.target.value)}
-                                className={`ml-2 text-xs px-2 py-1 rounded-full border-0 ${getStatusColor(account.status)}`}
+                                onChange={(e) =>
+                                  updateAccountStatus(
+                                    account._id,
+                                    e.target.value
+                                  )
+                                }
+                                className={`ml-2 text-xs px-2 py-1 rounded-full border-0 ${getStatusColor(
+                                  account.status
+                                )}`}
                               >
                                 <option value="pending">Pending</option>
                                 <option value="confirmed">Confirmed</option>
@@ -623,7 +665,9 @@ export default function AdminDashboardClient({
       {showImportModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4">Import Account Records</h3>
+            <h3 className="text-lg font-semibold mb-4">
+              Import Account Records
+            </h3>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Select Excel file
