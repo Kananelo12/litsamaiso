@@ -1,6 +1,6 @@
 import { connectDB } from "@/utils/mongodb";
 import Role from "@/models/Role";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/utils/actions/auth.action";
 
 // Get all roles (admin only)
@@ -20,7 +20,7 @@ export async function GET() {
     const roles = await Role.find({}).sort({ name: 1 });
 
     return NextResponse.json({
-      data: roles
+      data: roles,
     });
   } catch (error) {
     console.error("Error fetching roles:", error);

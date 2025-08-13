@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { connectDB } from "@/utils/mongodb";
 import Announcement from "@/models/Announcement";
 import User from "@/models/User";

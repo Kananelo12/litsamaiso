@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { connectDB } from "@/utils/mongodb";
 import AccountList from "@/models/AccountList";
 import { NextRequest, NextResponse } from "next/server";
@@ -23,7 +25,7 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get("status") || "";
     const search = searchParams.get("search") || "";
 
-    let query: any = {};
+    const query: any = {};
     
     if (status) {
       query.status = status;

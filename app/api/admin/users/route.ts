@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { connectDB } from "@/utils/mongodb";
 import User from "@/models/User";
 import { NextRequest, NextResponse } from "next/server";
@@ -23,7 +25,7 @@ export async function GET(req: NextRequest) {
     const search = searchParams.get("search") || "";
     const role = searchParams.get("role") || "";
 
-    let query: any = {};
+    const query: any = {};
     
     if (search) {
       query.$or = [
