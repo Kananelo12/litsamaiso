@@ -2,8 +2,9 @@ import { connectDB } from "@/utils/mongodb";
 import Announcement from "@/models/Announcement";
 import { NextRequest, NextResponse } from "next/server";
 import { Types } from "mongoose";
+import { getCurrentUser } from "@/utils/actions/auth.action";
 
-//Edit the comment identifying by comment id
+// Edit the announcement
 export async function PUT(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -16,21 +17,41 @@ export async function PUT(
       return NextResponse.json({ error: "Invalid ID format" }, { status: 400 });
     }
 
-    const updates = await req.json();
-    const updated = await Announcement.findByIdAndUpdate(id, updates, {
-      new: true,
-      runValidators: true,
-    });
+    // Check authentication
+    const currentUser = await getCurrentUser();
+    if (!currentUser) {
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 }
+      );
+    }
 
-    if (!updated) {
+    const announcement = await Announcement.findById(id);
+    if (!announcement) {
       return NextResponse.json(
         { error: "Announcement not found" },
         { status: 404 }
       );
     }
 
+    // Check if user owns the announcement or is admin
+    if (announcement.postedBy.toString() !== currentUser.id && currentUser.role !== "admin") {
+      return NextResponse.json(
+        { error: "Insufficient permissions" },
+        { status: 403 }
+      );
+    }
+
+    const updates = await req.json();
+    const updated = await Announcement.findByIdAndUpdate(id, updates, {
+      new: true,
+      runValidators: true,
+    }).populate("postedBy", "name email")
+      .populate("comments.user", "name email")
+      .populate("comments.replies.user", "name email");
+
     return NextResponse.json(
-      { message: "Updated", data: updated },
+      { message: "Updated successfully", data: updated },
       { status: 200 }
     );
   } catch (error) {
@@ -39,7 +60,7 @@ export async function PUT(
   }
 }
 
-//Get one desired announcement using its Id
+// Get one desired announcement using its Id
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -68,7 +89,7 @@ export async function GET(
   }
 }
 
-//Delete the announcement by Id
+// Delete the announcement by Id
 export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -81,11 +102,29 @@ export async function DELETE(
       return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
     }
 
-    const deleted = await Announcement.findByIdAndDelete(id);
+    // Check authentication
+    const currentUser = await getCurrentUser();
+    if (!currentUser) {
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 }
+      );
+    }
 
-    if (!deleted) {
+    const announcement = await Announcement.findById(id);
+    if (!announcement) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
+
+    // Check if user owns the announcement or is admin
+    if (announcement.postedBy.toString() !== currentUser.id && currentUser.role !== "admin") {
+      return NextResponse.json(
+        { error: "Insufficient permissions" },
+        { status: 403 }
+      );
+    }
+
+    await Announcement.findByIdAndDelete(id);
 
     return NextResponse.json({ message: "Deleted successfully" });
   } catch (error) {
@@ -103,21 +142,37 @@ export async function PATCH(
     await connectDB();
     const { id } = await params;
     const { userId, like } = await req.json();
+
     if (!Types.ObjectId.isValid(id) || !Types.ObjectId.isValid(userId)) {
       return NextResponse.json({ error: "Invalid ID(s)" }, { status: 400 });
     }
+
+    // Check authentication
+    const currentUser = await getCurrentUser();
+    if (!currentUser || currentUser.id !== userId) {
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 }
+      );
+    }
+
     const update = like
       ? { $addToSet: { likes: userId } }
       : { $pull: { likes: userId } };
+
     const updated = await Announcement.findByIdAndUpdate(id, update, {
       new: true,
-    });
+    }).populate("postedBy", "name email")
+      .populate("comments.user", "name email")
+      .populate("comments.replies.user", "name email");
+
     if (!updated) {
       return NextResponse.json(
         { error: "Announcement not found" },
         { status: 404 }
       );
     }
+
     return NextResponse.json({
       message: like ? "Liked" : "Unliked",
       data: updated,
@@ -137,25 +192,36 @@ export async function POST(
     await connectDB();
     const { id } = await params;
     const { userId, text } = await req.json();
-    if (
-      !Types.ObjectId.isValid(id) ||
-      !Types.ObjectId.isValid(userId) ||
-      !text
-    ) {
+
+    if (!Types.ObjectId.isValid(id) || !Types.ObjectId.isValid(userId) || !text) {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     }
+
+    // Check authentication
+    const currentUser = await getCurrentUser();
+    if (!currentUser || currentUser.id !== userId) {
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 }
+      );
+    }
+
     const comment = { user: userId, text, date: new Date(), replies: [] };
     const updated = await Announcement.findByIdAndUpdate(
       id,
       { $push: { comments: comment } },
       { new: true }
-    );
+    ).populate("postedBy", "name email")
+      .populate("comments.user", "name email")
+      .populate("comments.replies.user", "name email");
+
     if (!updated) {
       return NextResponse.json(
         { error: "Announcement not found" },
         { status: 404 }
       );
     }
+
     return NextResponse.json({ message: "Comment added", data: updated });
   } catch (error) {
     console.log("Error in announcements dynamic route: ", error);

@@ -74,6 +74,15 @@ const Header = ({ username }: { username: string }) => {
             >
               Updates
             </Link>
+            {/* Show admin dashboard link only for admin users */}
+            {username && (
+              <Link
+                href="/admin-dashboard"
+                className="p-2 sm:p-0 hover:bg-gray-100 sm:hover:bg-transparent rounded"
+              >
+                Admin
+              </Link>
+            )}
             <Link
               href="/issues"
               className="p-2 sm:p-0 hover:bg-gray-100 sm:hover:bg-transparent rounded"

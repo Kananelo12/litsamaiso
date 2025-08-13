@@ -1,10 +1,8 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
-
 import { connectDB } from "@/utils/mongodb";
 import Announcement from "@/models/Announcement";
 import { NextRequest, NextResponse } from "next/server";
 import { Types } from "mongoose";
+import { getCurrentUser } from "@/utils/actions/auth.action";
 
 // Add a reply to a comment in an announcement
 export async function POST(
@@ -15,6 +13,7 @@ export async function POST(
     await connectDB();
     const { id } = params;
     const { commentId, userId, text } = await req.json();
+
     if (
       !Types.ObjectId.isValid(id) ||
       !Types.ObjectId.isValid(commentId) ||
@@ -23,6 +22,16 @@ export async function POST(
     ) {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     }
+
+    // Check authentication
+    const currentUser = await getCurrentUser();
+    if (!currentUser || currentUser.id !== userId) {
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 }
+      );
+    }
+
     const announcement = await Announcement.findById(id);
     if (!announcement) {
       return NextResponse.json(
@@ -30,10 +39,12 @@ export async function POST(
         { status: 404 }
       );
     }
+
     const comment = announcement.comments.id(commentId);
     if (!comment) {
       return NextResponse.json({ error: "Comment not found" }, { status: 404 });
     }
+
     comment.replies.push({ user: userId, text, date: new Date() });
     await announcement.save();
 

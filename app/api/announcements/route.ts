@@ -1,13 +1,29 @@
 import { connectDB } from "@/utils/mongodb";
 import Announcement from "@/models/Announcement";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import User from "@/models/User";
 import { NextRequest, NextResponse } from "next/server";
+import { getCurrentUser } from "@/utils/actions/auth.action";
 
-// Create a new announcement resource from either SRC/admin memeber(s)
+// Create a new announcement resource from either SRC/admin member(s)
 export async function POST(req: NextRequest) {
   try {
     await connectDB();
+
+    // Check if user is authenticated and has proper role
+    const currentUser = await getCurrentUser();
+    if (!currentUser) {
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 }
+      );
+    }
+
+    if (currentUser.role !== "src" && currentUser.role !== "admin") {
+      return NextResponse.json(
+        { error: "Insufficient permissions. Only SRC members and admins can create announcements." },
+        { status: 403 }
+      );
+    }
 
     const body = await req.json();
     const { title, content, date, postedBy, header } = body;
@@ -19,16 +35,31 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Verify the postedBy user exists
+    const user = await User.findById(postedBy);
+    if (!user) {
+      return NextResponse.json(
+        { error: "Invalid user ID in postedBy field" },
+        { status: 400 }
+      );
+    }
+
     const newAnnouncement = await Announcement.create({
       title,
       content,
       header,
-      date: date ? new Date(date) : undefined,
+      date: date ? new Date(date) : new Date(),
       postedBy,
     });
 
+    // Populate the response
+    const populatedAnnouncement = await Announcement.findById(newAnnouncement._id)
+      .populate("postedBy", "name email")
+      .populate("comments.user", "name email")
+      .populate("comments.replies.user", "name email");
+
     return NextResponse.json(
-      { message: "Announcement created successfully", data: newAnnouncement },
+      { message: "Announcement created successfully", data: populatedAnnouncement },
       { status: 201 }
     );
   } catch (error) {
@@ -40,37 +71,44 @@ export async function POST(req: NextRequest) {
   }
 }
 
-//get all announcements
-export async function GET() {
+// Get all announcements
+export async function GET(req: NextRequest) {
   try {
     await connectDB();
 
-    const announcements = await Announcement.find()
-      .populate("postedBy", "name email") //get announcement owner name and email using thier Ids
-      .populate("comments.user", "name email") //populate comment user data
-      .populate("comments.replies.user", "name email") //populate reply user data
-      .sort({ date: -1 }); // sort announcements starting with the latest
+    const { searchParams } = new URL(req.url);
+    const header = searchParams.get("header");
+    const limit = parseInt(searchParams.get("limit") || "50");
+    const skip = parseInt(searchParams.get("skip") || "0");
 
-    return NextResponse.json({ data: announcements }, { status: 200 });
+    let query = {};
+    if (header) {
+      query = { header };
+    }
+
+    const announcements = await Announcement.find(query)
+      .populate("postedBy", "name email")
+      .populate("comments.user", "name email")
+      .populate("comments.replies.user", "name email")
+      .sort({ date: -1 })
+      .limit(limit)
+      .skip(skip);
+
+    const total = await Announcement.countDocuments(query);
+
+    return NextResponse.json({ 
+      data: announcements,
+      pagination: {
+        total,
+        limit,
+        skip,
+        hasMore: skip + limit < total
+      }
+    }, { status: 200 });
   } catch (error: any) {
     console.error("Error fetching announcements:", error.stack || error);
     return NextResponse.json(
       { error: "Failed to retrieve announcements" },
-      { status: 500 }
-    );
-  }
-}
-
-// Get all unique headers
-export async function GET_HEADERS() {
-  try {
-    await connectDB();
-    const headers = await Announcement.distinct("header");
-    return NextResponse.json({ data: headers }, { status: 200 });
-  } catch (error) {
-    console.error("Error fetching headers:", error);
-    return NextResponse.json(
-      { error: "Failed to retrieve headers" },
       { status: 500 }
     );
   }
