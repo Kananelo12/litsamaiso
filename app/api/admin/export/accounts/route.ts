@@ -50,6 +50,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({
         data: exportData,
         total: exportData.length,
+        status: status || "all",
         exportedAt: new Date().toISOString()
       });
     }
@@ -69,7 +70,8 @@ export async function GET(req: NextRequest) {
     // Generate buffer
     const buffer = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
 
-    const filename = `accounts_export_${new Date().toISOString().split('T')[0]}.xlsx`;
+    const statusSuffix = status ? `_${status}` : "_all";
+    const filename = `accounts_export${statusSuffix}_${new Date().toISOString().split('T')[0]}.xlsx`;
 
     return new NextResponse(buffer, {
       headers: {

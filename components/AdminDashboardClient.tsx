@@ -70,6 +70,17 @@ export default function AdminDashboardClient({
   const [roleFilter, setRoleFilter] = useState("");
   const [showImportModal, setShowImportModal] = useState(false);
   const [importFile, setImportFile] = useState<File | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingAccount, setEditingAccount] = useState<Account | null>(null);
+  const [editForm, setEditForm] = useState({
+    fullnames: "",
+    contractNumber: "",
+    courseOfStudy: "",
+    bankName: "",
+    accountNumber: "",
+    studentId: "",
+    status: "pending" as "pending" | "confirmed" | "erroneous"
+  });
 
   // Stats
   const [stats, setStats] = useState({
@@ -201,7 +212,15 @@ export default function AdminDashboardClient({
     format: "xlsx" | "json" = "xlsx"
   ) => {
     try {
-      const url = `/api/admin/export/${type}?format=${format}`;
+      const params = new URLSearchParams();
+      params.append("format", format);
+      
+      // Add status filter for accounts export
+      if (type === "accounts" && statusFilter) {
+        params.append("status", statusFilter);
+      }
+      
+      const url = `/api/admin/export/${type}?${params}`;
       const response = await fetch(url);
 
       if (response.ok) {
@@ -268,6 +287,46 @@ export default function AdminDashboardClient({
       }
     } catch (error) {
       toast.error(`Import failed: ${error}`);
+    }
+  };
+
+  const openEditModal = (account: Account) => {
+    setEditingAccount(account);
+    setEditForm({
+      fullnames: account.fullnames || "",
+      contractNumber: account.contractNumber || "",
+      courseOfStudy: account.courseOfStudy || "",
+      bankName: account.bankName || "",
+      accountNumber: account.accountNumber || "",
+      studentId: account.studentId || "",
+      status: account.status
+    });
+    setShowEditModal(true);
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingAccount) return;
+
+    try {
+      const response = await fetch(`/api/admin/accounts/${editingAccount._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editForm),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success("Account updated successfully");
+        setShowEditModal(false);
+        setEditingAccount(null);
+        fetchAccounts();
+      } else {
+        toast.error(data.error || "Failed to update account");
+      }
+    } catch (error) {
+      toast.error(`Failed to update account: ${error}`);
     }
   };
 
@@ -439,13 +498,13 @@ export default function AdminDashboardClient({
               <div className="flex gap-2">
                 <Button
                   onClick={() =>
-                    exportData(activeTab === "users" ? "users" : "accounts")
+                    exportData(activeTab === "users" ? "users" : "accounts", "xlsx")
                   }
                   variant="outline"
                   size="lg"
                 >
                   <Download className="w-4 h-4 mr-2" />
-                  Export
+                  Export {statusFilter ? `(${statusFilter})` : "All"}
                 </Button>
 
                 {activeTab === "accounts" && (
@@ -647,7 +706,10 @@ export default function AdminDashboardClient({
                             <button className="text-blue-600 hover:text-blue-900 mr-3">
                               <Eye className="w-4 h-4" />
                             </button>
-                            <button className="text-gray-600 hover:text-gray-900">
+                            <button 
+                              onClick={() => openEditModal(account)}
+                              className="text-gray-600 hover:text-gray-900"
+                            >
                               <Edit className="w-4 h-4" />
                             </button>
                           </td>
@@ -694,6 +756,138 @@ export default function AdminDashboardClient({
                 Import
               </Button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Account Modal */}
+      {showEditModal && editingAccount && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-semibold">Edit Account Record</h3>
+              <button
+                onClick={() => {
+                  setShowEditModal(false);
+                  setEditingAccount(null);
+                }}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Full Names
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.fullnames}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, fullnames: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Contract Number
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.contractNumber}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, contractNumber: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Course of Study
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.courseOfStudy}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, courseOfStudy: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Bank Name
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.bankName}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, bankName: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Account Number
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.accountNumber}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, accountNumber: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Student ID
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.studentId}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, studentId: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Status
+                  </label>
+                  <select
+                    value={editForm.status}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, status: e.target.value as "pending" | "confirmed" | "erroneous" }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="confirmed">Confirmed</option>
+                    <option value="erroneous">Erroneous</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div className="flex justify-end space-x-3 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setEditingAccount(null);
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit">
+                  Update Account
+                </Button>
+              </div>
+            </form>
           </div>
         </div>
       )}
